@@ -1,0 +1,452 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Virtual Desktop</title>
+  <style>
+    /* Basic styling for body and container */
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+
+    .desktop {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-color: #87CEFA; /* Light blue desktop background */
+    }
+
+    /* Taskbar at the bottom */
+    .taskbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      background-color: #333;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 0 10px;
+      box-sizing: border-box;
+      z-index: 1000;
+      overflow: hidden;
+    }
+
+    .taskbar button {
+      margin-right: 15px;
+      padding: 8px 12px;
+      background-color: #555;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .taskbar button.active {
+      background-color: #2196F3;
+    }
+
+    /* Window styling */
+    .window {
+      position: absolute;
+      width: 300px;
+      height: 200px;
+      background-color: white;
+      border: 2px solid #ccc;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      z-index: 999;
+      display: none;
+      flex-direction: column;
+    }
+
+    .window-header {
+      background-color: #333;
+      color: white;
+      padding: 10px;
+      cursor: move;
+      user-select: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .window-body {
+      flex: 1;
+      padding: 10px;
+    }
+
+    .window .close-btn,
+    .window .minimize-btn,
+    .window .maximize-btn {
+      background-color: #f44336;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .window .close-btn:hover,
+    .window .minimize-btn:hover,
+    .window .maximize-btn:hover {
+      background-color: #d32f2f;
+    }
+
+    /* App icons */
+    .app-icon {
+      position: absolute;
+      bottom: 50px;
+      left: 50px;
+      padding: 10px;
+      background-color: #444;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app-icon:hover {
+      background-color: #666;
+    }
+
+    /* Resizing handles */
+    .resize-handle {
+      width: 10px;
+      height: 10px;
+      background-color: #333;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      cursor: se-resize;
+    }
+  </style>
+</head>
+<body>
+  <div class="desktop">
+    <!-- App Icons -->
+    <div class="app-icon" onclick="launchWindow('window1')">Edge</div>
+    <div class="app-icon" style="left: 150px;" onclick="launchWindow('window2')">Calculator</div>
+
+    <!-- Edge -->
+    <div class="window" id="window1">
+      <div class="window-header">
+        Microsoft Edge
+        <div>
+          <button class="minimize-btn" onclick="minimizeWindow('window1')">_</button>
+          <button class="maximize-btn" onclick="maximizeWindow('window1')">[]</button>
+          <button class="close-btn" onclick="closeWindow('window1')">X</button>
+        </div>
+      </div>
+      <div class="window-body">
+        <!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Browser</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        #browser-header {
+            display: flex;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            align-items: center;
+        }
+        #url-bar {
+            width: 100%;
+            padding: 8px;
+            margin-right: 10px;
+            border-radius: 4px;
+            border: none;
+            font-size: 16px;
+        }
+        #buttons {
+            display: flex;
+            align-items: center;
+        }
+        button {
+            margin-left: 10px;
+            padding: 8px;
+            background-color: #444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        #iframe-container {
+            flex-grow: 1;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="browser-header">
+        <button id="back-button" disabled>Back</button>
+        <button id="forward-button" disabled>Forward</button>
+        <input type="text" id="url-bar" placeholder="Enter URL" />
+        <button id="go-button">Go</button>
+    </div>
+
+    <div id="iframe-container">
+        <iframe id="webview" src="about:blank"></iframe>
+    </div>
+
+    <script>
+        const urlBar = document.getElementById("url-bar");
+        const goButton = document.getElementById("go-button");
+        const backButton = document.getElementById("back-button");
+        const forwardButton = document.getElementById("forward-button");
+        const iframe = document.getElementById("webview");
+
+        let historyStack = [];
+        let historyIndex = -1;
+
+        // Function to navigate to a URL
+        function navigateTo(url) {
+            if (url && !url.startsWith("http://") && !url.startsWith("https://")) {
+                url = "http://" + url; // Add protocol if missing
+            }
+            iframe.src = url;
+            historyStack = historyStack.slice(0, historyIndex + 1); // Remove forward history
+            historyStack.push(url);
+            historyIndex++;
+            updateButtons();
+        }
+
+        // Update the state of the navigation buttons
+        function updateButtons() {
+            backButton.disabled = historyIndex <= 0;
+            forwardButton.disabled = historyIndex >= historyStack.length - 1;
+            urlBar.value = historyStack[historyIndex];
+        }
+
+        // Handle URL input and Go button click
+        goButton.addEventListener("click", () => {
+            const url = urlBar.value;
+            navigateTo(url);
+        });
+
+        // Handle Enter key press on the URL bar
+        urlBar.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                navigateTo(urlBar.value);
+            }
+        });
+
+        // Back button functionality
+        backButton.addEventListener("click", () => {
+            if (historyIndex > 0) {
+                historyIndex--;
+                iframe.src = historyStack[historyIndex];
+                updateButtons();
+            }
+        });
+
+        // Forward button functionality
+        forwardButton.addEventListener("click", () => {
+            if (historyIndex < historyStack.length - 1) {
+                historyIndex++;
+                iframe.src = historyStack[historyIndex];
+                updateButtons();
+            }
+        });
+
+        // Initially, the URL bar is empty
+        updateButtons();
+    </script>
+
+</body>
+</html>
+
+
+      </div>
+      <div class="resize-handle"></div>
+    </div>
+
+    <!-- Calculator -->
+    <div class="window" id="window2">
+      <div class="window-header">
+        Calculator
+        <div>
+          <button class="minimize-btn" onclick="minimizeWindow('window2')">_</button>
+          <button class="maximize-btn" onclick="maximizeWindow('window2')">[]</button>
+          <button class="close-btn" onclick="closeWindow('window2')">X</button>
+        </div>
+      </div>
+      <div class="window-body">
+        C
+      </div>
+      <div class="resize-handle"></div>
+    </div>
+
+    <!-- Taskbar -->
+    <div class="taskbar" id="taskbar">
+      <!-- Taskbar buttons will be dynamically added/removed here -->
+    </div>
+  </div>
+
+  <script>
+    // Track active windows
+    let activeWindows = {};
+
+    // Launch a window and show the taskbar button
+    function launchWindow(windowId) {
+      const windowElement = document.getElementById(windowId);
+      windowElement.style.display = 'block';
+      
+      // Add the window button to the taskbar if not already added
+      if (!activeWindows[windowId]) {
+        activeWindows[windowId] = true;
+        addTaskbarButton(windowId);
+      }
+    }
+
+    // Close a window and remove the taskbar button
+    function closeWindow(windowId) {
+      const windowElement = document.getElementById(windowId);
+      windowElement.style.display = 'none';
+      
+      // Mark the window as inactive
+      activeWindows[windowId] = false;
+      removeTaskbarButton(windowId);
+    }
+
+    // Minimize a window
+    function minimizeWindow(windowId) {
+      const windowElement = document.getElementById(windowId);
+      windowElement.style.display = 'none';
+      activeWindows[windowId] = false;
+      removeTaskbarButton(windowId);
+    }
+
+    // Maximize a window
+    function maximizeWindow(windowId) {
+      const windowElement = document.getElementById(windowId);
+      windowElement.style.width = '100%';
+      windowElement.style.height = '100%';
+      windowElement.style.top = 0;
+      windowElement.style.left = 0;
+    }
+
+    // Add taskbar button for an open window
+    function addTaskbarButton(windowId) {
+      const taskbar = document.getElementById('taskbar');
+      const button = document.createElement('button');
+      button.textContent = windowId.charAt(0).toUpperCase() + windowId.slice(1);
+      button.onclick = function () {
+        toggleWindow(windowId);
+      };
+      taskbar.appendChild(button);
+    }
+
+    // Remove taskbar button when window is closed or minimized
+    function removeTaskbarButton(windowId) {
+      const taskbar = document.getElementById('taskbar');
+      const buttons = taskbar.querySelectorAll('button');
+      buttons.forEach(button => {
+        if (button.textContent.toLowerCase() === windowId) {
+          taskbar.removeChild(button);
+        }
+      });
+    }
+
+    // Toggle window visibility from taskbar
+    function toggleWindow(windowId) {
+      const windowElement = document.getElementById(windowId);
+      if (windowElement.style.display === 'block') {
+        windowElement.style.display = 'none';
+        activeWindows[windowId] = false;
+        removeTaskbarButton(windowId);
+      } else {
+        windowElement.style.display = 'block';
+        activeWindows[windowId] = true;
+        addTaskbarButton(windowId);
+      }
+    }
+
+    // Dragging functionality for windows
+    let draggedWindow = null;
+
+    function dragStart(e) {
+      draggedWindow = e.target.closest('.window');
+      const offsetX = e.clientX - draggedWindow.offsetLeft;
+      const offsetY = e.clientY - draggedWindow.offsetTop;
+      draggedWindow.onmousemove = (moveEvent) => {
+        draggedWindow.style.left = moveEvent.clientX - offsetX + 'px';
+        draggedWindow.style.top = moveEvent.clientY - offsetY + 'px';
+      };
+    }
+
+    function dragEnd() {
+      if (draggedWindow) {
+        draggedWindow.onmousemove = null;
+        draggedWindow = null;
+      }
+    }
+
+    document.querySelectorAll('.window-header').forEach((header) => {
+      header.addEventListener('mousedown', dragStart);
+    });
+
+    document.addEventListener('mouseup', dragEnd);
+
+    // Resizing functionality
+    let resizingWindow = null;
+
+    function startResize(e) {
+      resizingWindow = e.target.closest('.window');
+      const initialWidth = resizingWindow.offsetWidth;
+      const initialHeight = resizingWindow.offsetHeight;
+      const initialMouseX = e.clientX;
+      const initialMouseY = e.clientY;
+
+      document.onmousemove = (moveEvent) => {
+        const newWidth = initialWidth + (moveEvent.clientX - initialMouseX);
+        const newHeight = initialHeight + (moveEvent.clientY - initialMouseY);
+        resizingWindow.style.width = newWidth + 'px';
+        resizingWindow.style.height = newHeight + 'px';
+      };
+
+      document.onmouseup = () => {
+        document.onmousemove = null;
+        document.onmouseup = null;
+        resizingWindow = null;
+      };
+    }
+
+    document.querySelectorAll('.resize-handle').forEach((handle) => {
+      handle.addEventListener('mousedown', startResize);
+    });
+  </script>
+</body>
+</html>
